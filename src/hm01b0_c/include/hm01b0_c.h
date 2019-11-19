@@ -182,7 +182,7 @@ hm01b0_status_e hm01b0_load_script(hm01b0_cfg_t *psCfg, hm_script_t *psScript, u
 // //!
 // //! This function powers up HM01B0.
 // //!
-// //! @return none.
+// //! @return Error code.
 // //
 // //*****************************************************************************
 // hm01b0_status_e hm01b0_power_up(hm01b0_cfg_t *psCfg);
@@ -195,7 +195,7 @@ hm01b0_status_e hm01b0_load_script(hm01b0_cfg_t *psCfg, hm_script_t *psScript, u
 // //!
 // //! This function powers up HM01B0.
 // //!
-// //! @return none.
+// //! @return Error code.
 // //
 // //*****************************************************************************
 // hm01b0_status_e hm01b0_power_down(hm01b0_cfg_t *psCfg);
@@ -208,23 +208,23 @@ hm01b0_status_e hm01b0_load_script(hm01b0_cfg_t *psCfg, hm_script_t *psScript, u
 //!
 //! This function utilizes CTimer to generate MCLK for HM01B0.
 //!
-//! @return none.
+//! @return Error code.
 //
 //*****************************************************************************
 hm01b0_status_e hm01b0_mclk_enable(hm01b0_cfg_t *psCfg);
 
-// //*****************************************************************************
-// //
-// //! @brief Disable MCLK
-// //!
-// //! @param psCfg                - Pointer to HM01B0 configuration structure.
-// //!
-// //! This function disable CTimer to stop MCLK for HM01B0.
-// //!
-// //! @return none.
-// //
-// //*****************************************************************************
-// void hm01b0_mclk_disable(hm01b0_cfg_t *psCfg);
+//*****************************************************************************
+//
+//! @brief Disable MCLK
+//!
+//! @param psCfg                - Pointer to HM01B0 configuration structure.
+//!
+//! This function disable CTimer to stop MCLK for HM01B0.
+//!
+//! @return Error code.
+//
+//*****************************************************************************
+hm01b0_status_e hm01b0_mclk_disable(hm01b0_cfg_t *psCfg);
 
 //*****************************************************************************
 //

@@ -21,6 +21,7 @@ SOFTWARE.
 */
 
 #include "HM01B0.h"
+#include "hm01b0_c/include/hm01b0_raw8_qvga_8bits_lsb_5fps.h"
 
 HM01B0::HM01B0(hm01b0_cfg_t _cfg){
   cfg = _cfg;
@@ -48,17 +49,20 @@ hm01b0_status_e HM01B0::begin( void ){
   am_util_stdio_printf("HM01B0 Enable walking 1s test mode\n");
   hm01b0_test_walking1s(&cfg);
 #else
-  hm01b0_cal_ae(&cfg, 10, frameBuffer, sizeof(frameBuffer));
+  hm01b0_cal_ae(&cfg, 10, frameBuffer, sizeof(frameBuffer), &aecfg);
 #endif
 
   return retval;
 }
 
 hm01b0_status_e HM01B0::end( void ){
+  hm01b0_status_e retval = HM01B0_ERR_OK;
+  
   hm01b0_deinit_if(&cfg);
   hm01b0_mclk_disable(&cfg);
   // hm01b0_power_down(&cfg);
-  boost_mode_enable(false);
+
+  return retval;
 }
 
 
