@@ -18,7 +18,7 @@
 #include "hm01b0.h"
 
 #define SERIAL_PORT Serial
-#define BAUD_RATE   115200
+#define BAUD_RATE   921600
 
 HM01B0 myCamera;
 
