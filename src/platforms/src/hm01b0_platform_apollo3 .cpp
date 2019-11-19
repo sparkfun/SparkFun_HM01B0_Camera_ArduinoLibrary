@@ -20,22 +20,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Arduino.h"
-#include "HM01B0_C.h"
+#if defined (AM_PART_APOLLO3)
 
-class HM01B0 {
-private:
-protected:
-
-  hm01b0_cfg_t    cfg = {0};
-  hm01b0_ae_cfg_t aecfg = {0};
-  uint8_t         frameBuffee[HM01B0_PIXEL_X_NUM * HM01B0_PIXEL_Y_NUM] = {0};
-
-public:
-  HM01B0(hm01b0_cfg_t _cfg); // Contructor
-
-  
+#include "platforms/include/hm01b0_platform_apollo3.h"
 
 
 
-};
+
+
+#endif // defined (AM_PART_APOLLO3)

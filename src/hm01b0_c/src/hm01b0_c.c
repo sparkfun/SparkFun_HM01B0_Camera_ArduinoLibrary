@@ -2,30 +2,23 @@
 //
 //! @file HM01B0.c
 //!
+//  Original work by Larry Tien - AmbiqMicro
+//  Generalization by Owen Lyke - SparkFun Electronics (2019)
 //
 //*****************************************************************************
 
-#include "am_mcu_apollo.h"
-#include "am_bsp.h"
-#include "am_util.h"
-#include "HM01B0.h"
-#include "HM01B0_Walking1s_01.h"
-#include "platform.h"
+#include "hm01b0_c/include/hm01b0_c.h"
+#include "hm01b0_c/include/hm01b0_walking1s_01.h"
+// #include "hm01b0_platform.h"
 
 
-#define read_vsync()    (AM_REGVAL(AM_REGADDR(GPIO, RDA)) & (1 << HM01B0_PIN_VSYNC))
-#define read_hsync()    (AM_REGVAL(AM_REGADDR(GPIO, RDA)) & (1 << HM01B0_PIN_HSYNC))
-#define read_pclk()     (AM_REGVAL(AM_REGADDR(GPIO, RDA)) & (1 << HM01B0_PIN_PCLK))
-#define read_byte()     (APBDMA->BBINPUT)
+// Conditionally Include Platforms
+#if defined (AM_PART_APOLLO3)
+#include "platforms/include/hm01b0_platform_apollo3.h"
+#else
+  #error "Unsupported platform: Submit an issue / pull request to https://github.com/sparkfun/SparkFun_HM01B0_Camera_ArduinoLibrary to add support for your target"
+#endif // platform inclusion
 
-const am_hal_gpio_pincfg_t g_HM01B0_pin_int =
-{
-    .uFuncSel = 3,
-    .eGPOutcfg      = AM_HAL_GPIO_PIN_OUTCFG_DISABLE,
-    .eIntDir        = AM_HAL_GPIO_PIN_INTDIR_LO2HI,
-    .eGPInput       = AM_HAL_GPIO_PIN_INPUT_ENABLE,
-    .eGPRdZero      = AM_HAL_GPIO_PIN_RDZERO_READPIN
-};
 
 //*****************************************************************************
 //
@@ -35,39 +28,19 @@ const am_hal_gpio_pincfg_t g_HM01B0_pin_int =
 //! @param ui16Reg              - Register address.
 //! @param pui8Value            - Pointer to the data to be written.
 //! @param ui32NumBytes         - Length of the data in bytes to be written.
+//! @param arg                  - user assignable pointer (input)
 //!
 //! This function writes value to HM01B0 registers.
 //!
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_write_reg(hm01b0_cfg_t *psCfg, uint16_t ui16Reg, uint8_t *pui8Value, uint32_t ui32NumBytes){
-    am_hal_iom_transfer_t Transaction;
-
-    //
-    // Create the transaction.
-    //
-    Transaction.ui32InstrLen                = sizeof(uint16_t);
-    Transaction.ui32Instr                   = (ui16Reg & 0x0000FFFF);
-    Transaction.eDirection                  = AM_HAL_IOM_TX;
-    Transaction.ui32NumBytes                = ui32NumBytes;
-    Transaction.pui32TxBuffer               = (uint32_t *) pui8Value;
-    Transaction.uPeerInfo.ui32I2CDevAddr    = (uint32_t) psCfg->ui16SlvAddr;
-    Transaction.bContinue                   = false;
-    Transaction.ui8RepeatCount              = 0;
-    Transaction.ui32PauseCondition          = 0;
-    Transaction.ui32StatusSetClr            = 0;
-
-    //
-    // Execute the transction over IOM.
-    //
-    if (am_hal_iom_blocking_transfer(psCfg->pIOMHandle, &Transaction))
-    {
-        return HM01B0_ERR_I2C;
-    }
-
-    return HM01B0_ERR_OK;
-
+hm01b0_status_e hm01b0_write_reg(hm01b0_cfg_t *psCfg, uint16_t ui16Reg, uint8_t *pui8Value, uint32_t ui32NumBytes){
+  if(psCfg->interface->write != NULL){
+    return psCfg->interface->write(psCfg, ui16Reg, pui8Value, ui32NumBytes, psCfg->interface->arg);
+  }else{
+    return HM01B0_ERR_UNIMPLEMENTED;
+  }
 }
 
 //*****************************************************************************
@@ -78,40 +51,19 @@ uint32_t hm01b0_write_reg(hm01b0_cfg_t *psCfg, uint16_t ui16Reg, uint8_t *pui8Va
 //! @param ui16Reg              - Register address.
 //! @param pui8Value            - Pointer to the buffer for read data to be put into.
 //! @param ui32NumBytes         - Length of the data to be read.
+//! @param arg                  - user assignable pointer (input)
 //!
 //! This function reads value from HM01B0 registers.
 //!
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_read_reg(hm01b0_cfg_t *psCfg, \
-                            uint16_t ui16Reg, uint8_t *pui8Value, uint32_t ui32NumBytes)
-{
-    am_hal_iom_transfer_t  Transaction;
-
-    //
-    // Create the transaction.
-    //
-    Transaction.ui32InstrLen                = sizeof(uint16_t);
-    Transaction.ui32Instr                   = (ui16Reg & 0x0000FFFF);
-    Transaction.eDirection                  = AM_HAL_IOM_RX;
-    Transaction.ui32NumBytes                = ui32NumBytes;
-    Transaction.pui32RxBuffer               = (uint32_t *) pui8Value;;
-    Transaction.uPeerInfo.ui32I2CDevAddr    = (uint32_t) psCfg->ui16SlvAddr;
-    Transaction.bContinue                   = false;
-    Transaction.ui8RepeatCount              = 0;
-    Transaction.ui32PauseCondition          = 0;
-    Transaction.ui32StatusSetClr            = 0;
-
-    //
-    // Execute the transction over IOM.
-    //
-    if (am_hal_iom_blocking_transfer(psCfg->pIOMHandle, &Transaction))
-    {
-        return HM01B0_ERR_I2C;
-    }
-
-    return HM01B0_ERR_OK;
+hm01b0_status_e hm01b0_read_reg(hm01b0_cfg_t *psCfg, uint16_t ui16Reg, uint8_t *pui8Value, uint32_t ui32NumBytes){
+  if(psCfg->interface->read != NULL){
+    return psCfg->interface->read(psCfg, ui16Reg, pui8Value, ui32NumBytes, psCfg->interface->arg);
+  }else{
+    return HM01B0_ERR_UNIMPLEMENTED;
+  }
 }
 
 //*****************************************************************************
@@ -127,55 +79,55 @@ uint32_t hm01b0_read_reg(hm01b0_cfg_t *psCfg, \
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_load_script(hm01b0_cfg_t *psCfg, hm_script_t *psScript, uint32_t ui32ScriptCmdNum)
+hm01b0_status_e hm01b0_load_script(hm01b0_cfg_t *psCfg, hm_script_t *psScript, uint32_t ui32ScriptCmdNum)
 {
-    uint32_t ui32Err = HM01B0_ERR_OK;
-    for (uint32_t idx = 0; idx < ui32ScriptCmdNum; idx++)
+  hm01b0_status_e ui32Err = HM01B0_ERR_OK;
+  for (uint32_t idx = 0; idx < ui32ScriptCmdNum; idx++)
+  {
+    ui32Err = hm01b0_write_reg(psCfg, (psScript + idx)->ui16Reg, &((psScript + idx)->ui8Val), sizeof(uint8_t));
+    if (ui32Err != HM01B0_ERR_OK)
     {
-        ui32Err = hm01b0_write_reg(psCfg, \
-                                    (psScript + idx)->ui16Reg, \
-                                    &((psScript + idx)->ui8Val), \
-                                    sizeof(uint8_t));
-        if (ui32Err != HM01B0_ERR_OK)
-        {
-            break;
-        }
+      break;
     }
-
-    return ui32Err;   
+  }
+  return ui32Err;   
 }
 
-//*****************************************************************************
-//
-//! @brief Power up HM01B0
-//!
-//! @param psCfg                - Pointer to HM01B0 configuration structure.
-//!
-//! This function powers up HM01B0.
-//!
-//! @return none.
-//
-//*****************************************************************************
-void hm01b0_power_up(hm01b0_cfg_t *psCfg)
-{
-    // place holder
-}
+// //*****************************************************************************
+// //
+// //! @brief Power up HM01B0
+// //!
+// //! @param psCfg                - Pointer to HM01B0 configuration structure.
+// //!
+// //! This function powers up HM01B0.
+// //!
+// //! @return Error code.
+// //
+// //*****************************************************************************
+// hm01b0_status_e hm01b0_power_up(hm01b0_cfg_t *psCfg)
+// {
+//   hm01b0_status_e retval = HM01B0_ERR_OK;
+//   // place holder
+//   return retval;
+// }
 
-//*****************************************************************************
-//
-//! @brief Power down HM01B0
-//!
-//! @param psCfg                - Pointer to HM01B0 configuration structure.
-//!
-//! This function powers up HM01B0.
-//!
-//! @return none.
-//
-//*****************************************************************************
-void hm01b0_power_down(hm01b0_cfg_t *psCfg)
-{
-    // place holder
-}
+// //*****************************************************************************
+// //
+// //! @brief Power down HM01B0
+// //!
+// //! @param psCfg                - Pointer to HM01B0 configuration structure.
+// //!
+// //! This function powers up HM01B0.
+// //!
+// //! @return none.
+// //
+// //*****************************************************************************
+// hm01b0_status_e hm01b0_power_down(hm01b0_cfg_t *psCfg)
+// {
+//   hm01b0_status_e retval = HM01B0_ERR_OK;
+//   // place holder
+//   return retval;
+// }
 
 //*****************************************************************************
 //
@@ -188,59 +140,13 @@ void hm01b0_power_down(hm01b0_cfg_t *psCfg)
 //! @return none.
 //
 //*****************************************************************************
-void hm01b0_mclk_enable(hm01b0_cfg_t *psCfg)
+hm01b0_status_e hm01b0_mclk_enable(hm01b0_cfg_t *psCfg)
 {
-#define MCLK_UI64PATTERN        0x55555555
-#define MCLK_UI64PATTERNLEN     31
-
-    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_SYSCLK_MAX, 0);
-
-    //
-    // Set up timer.
-    //
-    am_hal_ctimer_clear(psCfg->ui32CTimerModule, psCfg->ui32CTimerSegment);
-
-    am_hal_ctimer_config_single(psCfg->ui32CTimerModule,
-                                    psCfg->ui32CTimerSegment,
-                                    (
-                                        AM_HAL_CTIMER_FN_PTN_REPEAT |
-                                        AM_HAL_CTIMER_HFRC_12MHZ
-                                    )
-                                );
-
-    //
-    // Set the pattern in the CMPR registers.
-    //
-    am_hal_ctimer_compare_set(psCfg->ui32CTimerModule, psCfg->ui32CTimerSegment, 0, 
-                            (uint32_t)(MCLK_UI64PATTERN & 0xFFFF));
-    am_hal_ctimer_compare_set(psCfg->ui32CTimerModule, psCfg->ui32CTimerSegment, 1, 
-                            (uint32_t)((MCLK_UI64PATTERN >> 16) & 0xFFFF));
-
-    //
-    // Set the timer trigger and pattern length.
-    //
-    am_hal_ctimer_config_trigger(psCfg->ui32CTimerModule,
-                                    psCfg->ui32CTimerSegment,
-                                    (
-                                        (MCLK_UI64PATTERNLEN << CTIMER_AUX0_TMRA0LMT_Pos) |
-                                        (CTIMER_AUX0_TMRB0TRIG_DIS << CTIMER_AUX0_TMRA0TRIG_Pos)
-                                    )
-                                );
-
-    //
-    // Configure timer output pin.
-    //
-    am_hal_ctimer_output_config(psCfg->ui32CTimerModule,
-                                psCfg->ui32CTimerSegment,
-                                psCfg->ui32CTimerOutputPin, 
-                                AM_HAL_CTIMER_OUTPUT_NORMAL, 
-                                AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA);
-
-    //
-    // Start the timer.
-    //
-    am_hal_ctimer_start(psCfg->ui32CTimerModule, psCfg->ui32CTimerSegment);
-
+  if(psCfg->interface->mclk != NULL){
+    return psCfg->interface->mclk(psCfg, true, psCfg->interface->arg);
+  }else{
+    return HM01B0_ERR_UNIMPLEMENTED;
+  }
 }
 
 //*****************************************************************************
@@ -254,14 +160,13 @@ void hm01b0_mclk_enable(hm01b0_cfg_t *psCfg)
 //! @return none.
 //
 //*****************************************************************************
-void hm01b0_mclk_disable(hm01b0_cfg_t *psCfg)
+hm01b0_status_e hm01b0_mclk_disable(hm01b0_cfg_t *psCfg)
 {
-    //
-    // Stop the timer.
-    //
-    am_hal_ctimer_stop(psCfg->ui32CTimerModule, psCfg->ui32CTimerSegment);
-    am_hal_gpio_pinconfig(psCfg->ui32CTimerOutputPin, g_AM_HAL_GPIO_DISABLE);
-
+  if(psCfg->interface->mclk != NULL){
+    return psCfg->interface->mclk(psCfg, false, psCfg->interface->arg);
+  }else{
+    return HM01B0_ERR_UNIMPLEMENTED;
+  }
 }
 
 //*****************************************************************************
@@ -275,89 +180,13 @@ void hm01b0_mclk_disable(hm01b0_cfg_t *psCfg)
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_init_if(hm01b0_cfg_t *psCfg)
+hm01b0_status_e hm01b0_init_if(hm01b0_cfg_t *psCfg)
 {
-    void *pIOMHandle = NULL;
-
-    if ( psCfg->ui32IOMModule > AM_REG_IOM_NUM_MODULES )
-    {
-        return HM01B0_ERR_I2C;
-    }
-
-    //
-    // Enable fault detection.
-    //
-#if AM_APOLLO3_MCUCTRL
-    am_hal_mcuctrl_control(AM_HAL_MCUCTRL_CONTROL_FAULT_CAPTURE_ENABLE, 0);
-#else // AM_APOLLO3_MCUCTRL
-    am_hal_mcuctrl_fault_capture_enable();
-#endif // AM_APOLLO3_MCUCTRL
-
-    //
-    // Initialize the IOM instance.
-    // Enable power to the IOM instance.
-    // Configure the IOM for Serial operation during initialization.
-    // Enable the IOM.
-    //
-    if (am_hal_iom_initialize(psCfg->ui32IOMModule, &pIOMHandle) ||
-        am_hal_iom_power_ctrl(pIOMHandle, AM_HAL_SYSCTRL_WAKE, false) ||
-        am_hal_iom_configure(pIOMHandle, &(psCfg->sIOMCfg)) ||
-        am_hal_iom_enable(pIOMHandle))
-    {
-        return HM01B0_ERR_I2C;
-    }
-    else
-    {
-        //
-        // Configure the IOM pins.
-        //
-        am_bsp_iom_pins_enable(psCfg->ui32IOMModule, psCfg->eIOMMode);
-
-        psCfg->pIOMHandle = pIOMHandle;
-    }
-
-    // initialize pins for camera parallel interface.
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD0);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD1);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD2);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD3);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD4);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD5);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD6);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD7);
-
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD0);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD1);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD2);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD3);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD4);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD5);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD6);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD7);
-
-    am_hal_gpio_fast_pinconfig((uint64_t)0x1 << psCfg->ui8PinD0 |
-                                 (uint64_t)0x1 << psCfg->ui8PinD1 |
-                                 (uint64_t)0x1 << psCfg->ui8PinD2 |
-                                 (uint64_t)0x1 << psCfg->ui8PinD3 |
-                                 (uint64_t)0x1 << psCfg->ui8PinD4 |
-                                 (uint64_t)0x1 << psCfg->ui8PinD5 |
-                                 (uint64_t)0x1 << psCfg->ui8PinD6 |
-                                 (uint64_t)0x1 << psCfg->ui8PinD7,
-                                 g_AM_HAL_GPIO_INPUT, 0);
-
-    am_hal_gpio_pinconfig(psCfg->ui8PinVSYNC,   g_AM_HAL_GPIO_INPUT);
-    am_hal_gpio_pinconfig(psCfg->ui8PinHSYNC,   g_AM_HAL_GPIO_INPUT);
-    am_hal_gpio_pinconfig(psCfg->ui8PinPCLK,    g_AM_HAL_GPIO_INPUT);
-
-    am_hal_gpio_pinconfig(psCfg->ui8PinTrig,    g_AM_HAL_GPIO_OUTPUT);
-
-    am_hal_gpio_pinconfig(psCfg->ui8PinInt,     g_AM_HAL_GPIO_DISABLE);
-    // am_hal_gpio_pinconfig(psCfg->ui8PinInt,     g_HM01B0_pin_int);
-    // am_hal_gpio_interrupt_clear(AM_HAL_GPIO_BIT(psCfg->ui8PinInt));
-    // am_hal_gpio_interrupt_enable(AM_HAL_GPIO_BIT(psCfg->ui8PinInt));
-    // NVIC_EnableIRQ(GPIO_IRQn);
-
-    return HM01B0_ERR_OK;
+  if(psCfg->interface->init != NULL){
+    return psCfg->interface->init(psCfg, psCfg->interface->arg);
+  }else{
+    return HM01B0_ERR_UNIMPLEMENTED;
+  }
 }
 
 //*****************************************************************************
@@ -371,41 +200,13 @@ uint32_t hm01b0_init_if(hm01b0_cfg_t *psCfg)
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_deinit_if(hm01b0_cfg_t *psCfg)
+hm01b0_status_e hm01b0_deinit_if(hm01b0_cfg_t *psCfg)
 {
-    am_hal_iom_disable(psCfg->pIOMHandle);
-    am_hal_iom_uninitialize(psCfg->pIOMHandle);
-
-    am_hal_gpio_pinconfig(psCfg->ui8PinSCL,   g_AM_HAL_GPIO_DISABLE);
-    am_hal_gpio_pinconfig(psCfg->ui8PinSDA,   g_AM_HAL_GPIO_DISABLE);
-
-    // initialize pins for camera parallel interface.
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD0);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD1);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD2);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD3);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD4);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD5);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD6);
-    am_hal_gpio_fastgpio_disable(psCfg->ui8PinD7);
-
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD0);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD1);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD2);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD3);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD4);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD5);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD6);
-    am_hal_gpio_fastgpio_clr(psCfg->ui8PinD7);
-
-    am_hal_gpio_pinconfig(psCfg->ui8PinVSYNC,   g_AM_HAL_GPIO_DISABLE);
-    am_hal_gpio_pinconfig(psCfg->ui8PinHSYNC,   g_AM_HAL_GPIO_DISABLE);
-    am_hal_gpio_pinconfig(psCfg->ui8PinPCLK,    g_AM_HAL_GPIO_DISABLE);
-    am_hal_gpio_pinconfig(psCfg->ui8PinTrig,    g_AM_HAL_GPIO_DISABLE);
-    am_hal_gpio_pinconfig(psCfg->ui8PinInt,     g_AM_HAL_GPIO_DISABLE);
-
-
-    return HM01B0_ERR_OK;
+  if(psCfg->interface->deinit != NULL){
+    return psCfg->interface->deinit(psCfg, psCfg->interface->arg);
+  }else{
+    return HM01B0_ERR_UNIMPLEMENTED;
+  }
 }
 
 //*****************************************************************************
@@ -420,10 +221,10 @@ uint32_t hm01b0_deinit_if(hm01b0_cfg_t *psCfg)
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_get_modelid(hm01b0_cfg_t *psCfg, uint16_t *pui16MID)
+hm01b0_status_e hm01b0_get_modelid(hm01b0_cfg_t *psCfg, uint16_t *pui16MID)
 {
     uint8_t ui8Data[1];
-    uint32_t ui32Err;
+    hm01b0_status_e ui32Err;
 
     *pui16MID = 0x0000;
 
@@ -455,7 +256,7 @@ uint32_t hm01b0_get_modelid(hm01b0_cfg_t *psCfg, uint16_t *pui16MID)
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_init_system(hm01b0_cfg_t *psCfg, hm_script_t *psScript, uint32_t ui32ScriptCmdNum)
+hm01b0_status_e hm01b0_init_system(hm01b0_cfg_t *psCfg, hm_script_t *psScript, uint32_t ui32ScriptCmdNum)
 {
     return hm01b0_load_script(psCfg, psScript, ui32ScriptCmdNum);
 }
@@ -471,7 +272,7 @@ uint32_t hm01b0_init_system(hm01b0_cfg_t *psCfg, hm_script_t *psScript, uint32_t
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_test_walking1s(hm01b0_cfg_t *psCfg)
+hm01b0_status_e hm01b0_test_walking1s(hm01b0_cfg_t *psCfg)
 {
     uint32_t ui32ScriptCmdNum = sizeof(sHM01b0TestModeScript_Walking1s) / sizeof(hm_script_t);
     hm_script_t *psScript = (hm_script_t *)sHM01b0TestModeScript_Walking1s;
@@ -489,10 +290,10 @@ uint32_t hm01b0_test_walking1s(hm01b0_cfg_t *psCfg)
 //!
 //! This function sets HM01B0 in the walking 1s test mode.
 //!
-//! @return Error code.
+//! @return Mismatch count
 //
 //*****************************************************************************
-void hm01b0_test_walking1s_check_data_sanity(uint8_t *pui8Buffer, uint32_t ui32BufferLen, uint32_t ui32PrintCnt)
+uint32_t hm01b0_test_walking1s_check_data_sanity(uint8_t *pui8Buffer, uint32_t ui32BufferLen)
 {
     uint8_t ui8ByteData = *pui8Buffer;
     uint32_t ui32MismatchCnt = 0x00;
@@ -501,12 +302,6 @@ void hm01b0_test_walking1s_check_data_sanity(uint8_t *pui8Buffer, uint32_t ui32B
     {
         if (*(pui8Buffer + ui32Idx) != ui8ByteData)
         {
-            if (ui32PrintCnt)
-            {
-                SERIAL_PORT.printf("[0x%08X] actual 0x%02X expected 0x%02X\n", ui32Idx, *(pui8Buffer + ui32Idx), ui8ByteData);
-                am_util_delay_ms(1);
-                ui32PrintCnt--;
-            }
             ui32MismatchCnt++;
         }
 
@@ -515,9 +310,7 @@ void hm01b0_test_walking1s_check_data_sanity(uint8_t *pui8Buffer, uint32_t ui32B
         else
             ui8ByteData = 0x01;
     }
-
-    SERIAL_PORT.printf("Mismatch Rate %d/%d\n", ui32MismatchCnt, ui32BufferLen);
-
+    return ui32MismatchCnt;
 }
 
 //*****************************************************************************
@@ -531,7 +324,7 @@ void hm01b0_test_walking1s_check_data_sanity(uint8_t *pui8Buffer, uint32_t ui32B
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_reset_sw(hm01b0_cfg_t *psCfg)
+hm01b0_status_e hm01b0_reset_sw(hm01b0_cfg_t *psCfg)
 {
     uint8_t ui8Data[1] = {0x00};
     return hm01b0_write_reg(psCfg, HM01B0_REG_SW_RESET, ui8Data, sizeof(ui8Data));
@@ -550,7 +343,7 @@ uint32_t hm01b0_reset_sw(hm01b0_cfg_t *psCfg)
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_get_mode(hm01b0_cfg_t *psCfg, uint8_t *pui8Mode)
+hm01b0_status_e hm01b0_get_mode(hm01b0_cfg_t *psCfg, uint8_t *pui8Mode)
 {
     uint8_t ui8Data[1] = {0x01};
     uint32_t ui32Err;
@@ -580,7 +373,7 @@ uint32_t hm01b0_get_mode(hm01b0_cfg_t *psCfg, uint8_t *pui8Mode)
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_set_mode(hm01b0_cfg_t *psCfg, uint8_t ui8Mode, uint8_t ui8FrameCnt)
+hm01b0_status_e hm01b0_set_mode(hm01b0_cfg_t *psCfg, uint8_t ui8Mode, uint8_t ui8FrameCnt)
 {
     uint32_t ui32Err = HM01B0_ERR_OK;
 
@@ -609,7 +402,7 @@ uint32_t hm01b0_set_mode(hm01b0_cfg_t *psCfg, uint8_t ui8Mode, uint8_t ui8FrameC
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_cmd_update(hm01b0_cfg_t *psCfg)
+hm01b0_status_e hm01b0_cmd_update(hm01b0_cfg_t *psCfg)
 {
     uint8_t     ui8Data = HM01B0_REG_GRP_PARAM_HOLD_HOLD;
 
@@ -629,7 +422,7 @@ uint32_t hm01b0_cmd_update(hm01b0_cfg_t *psCfg)
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_get_ae(hm01b0_cfg_t *psCfg, hm01b0_ae_cfg_t *psAECfg)
+hm01b0_status_e hm01b0_get_ae(hm01b0_cfg_t *psCfg, hm01b0_ae_cfg_t *psAECfg)
 {
     uint32_t    ui32Err = HM01B0_ERR_OK;
     uint8_t     ui8AETargetMean;
@@ -676,18 +469,19 @@ uint32_t hm01b0_get_ae(hm01b0_cfg_t *psCfg, hm01b0_ae_cfg_t *psAECfg)
 //! @param ui8CalFrames     - Frame counts for calibratoin.
 //! @param pui8Buffer       - Pointer to the frame buffer.
 //! @param ui32BufferLen    - Framebuffer size.
+//! @param pAECfg           - Pointer to AECfg structure to fill with calibration results
 //!
 //! This function lets HM01B0 AE settled as much as possible within a given frame counts.
 //!
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_cal_ae(hm01b0_cfg_t *psCfg, uint8_t ui8CalFrames, uint8_t *pui8Buffer, uint32_t ui32BufferLen)
+hm01b0_status_e hm01b0_cal_ae(hm01b0_cfg_t *psCfg, uint8_t ui8CalFrames, uint8_t *pui8Buffer, uint32_t ui32BufferLen, hm01b0_ae_cfg_t* pAECfg)
 {
     uint32_t        ui32Err     = HM01B0_ERR_OK;
-    hm01b0_ae_cfg_t sAECfg;
-
-    SERIAL_PORT.printf("[%s] +\n", __func__);
+    if(pAECfg == NULL){
+        return HM01B0_ERR_PARAMS;
+    }
 
     hm01b0_set_mode(psCfg, HM01B0_REG_MODE_SELECT_STREAMING_NFRAMES, ui8CalFrames);
 
@@ -696,10 +490,11 @@ uint32_t hm01b0_cal_ae(hm01b0_cfg_t *psCfg, uint8_t ui8CalFrames, uint8_t *pui8B
 
         hm01b0_blocking_read_oneframe(psCfg, pui8Buffer, ui32BufferLen);
 
-        ui32Err = hm01b0_get_ae(psCfg, &sAECfg);
+        ui32Err = hm01b0_get_ae(psCfg, pAECfg);
 
-        SERIAL_PORT.printf("AE Calibration(0x%02X) TargetMean 0x%02X, ConvergeInTh 0x%02X, AEMean 0x%02X\n",
-                                        ui32Err, sAECfg.ui8AETargetMean, sAECfg.ui8ConvergeInTh, sAECfg.ui8AEMean);
+        // // todo: could report out intermediate results here (without using printing - perhaps a callback function)
+        // SERIAL_PORT.printf("AE Calibration(0x%02X) TargetMean 0x%02X, ConvergeInTh 0x%02X, AEMean 0x%02X\n",
+        //                                 ui32Err, sAECfg.ui8AETargetMean, sAECfg.ui8ConvergeInTh, sAECfg.ui8AEMean);
 
         // if AE calibration is done in ui8CalFrames, just exit to save some time.
         if (ui32Err == HM01B0_ERR_OK)
@@ -707,8 +502,6 @@ uint32_t hm01b0_cal_ae(hm01b0_cfg_t *psCfg, uint8_t ui8CalFrames, uint8_t *pui8B
     }
 
     hm01b0_set_mode(psCfg, HM01B0_REG_MODE_SELECT_STANDBY, 0);
-
-    SERIAL_PORT.printf("[%s] -\n", __func__);
 
     return ui32Err;
 }
@@ -726,7 +519,7 @@ uint32_t hm01b0_cal_ae(hm01b0_cfg_t *psCfg, uint8_t ui8CalFrames, uint8_t *pui8B
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_save_exposure_gains(hm01b0_cfg_t *psCfg, hm01b0_snr_expo_gain_ctrl_t *psExpoGainCtrl)
+hm01b0_status_e hm01b0_save_exposure_gains(hm01b0_cfg_t *psCfg, hm01b0_snr_expo_gain_ctrl_t *psExpoGainCtrl)
 {
     uint32_t ui32Err = HM01B0_ERR_OK;
     uint8_t ui8IntegrationH;
@@ -775,7 +568,7 @@ uint32_t hm01b0_save_exposure_gains(hm01b0_cfg_t *psCfg, hm01b0_snr_expo_gain_ct
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_restore_exposure_gains(hm01b0_cfg_t *psCfg, hm01b0_snr_expo_gain_ctrl_t *psExpoGainCtrl)
+hm01b0_status_e hm01b0_restore_exposure_gains(hm01b0_cfg_t *psCfg, hm01b0_snr_expo_gain_ctrl_t *psExpoGainCtrl)
 {
     uint32_t    ui32Err = HM01B0_ERR_OK;
     uint8_t     ui8Tmp;
@@ -817,10 +610,15 @@ uint32_t hm01b0_restore_exposure_gains(hm01b0_cfg_t *psCfg, hm01b0_snr_expo_gain
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_hardware_trigger_streaming(hm01b0_cfg_t *psCfg, bool bTrigger)
+hm01b0_status_e hm01b0_hardware_trigger_streaming(hm01b0_cfg_t *psCfg, bool bTrigger)
 {
     uint32_t ui32Err = HM01B0_ERR_OK;
     uint8_t ui8Mode;
+
+    if(psCfg->interface->trig == NULL){
+        ui32Err = HM01B0_ERR_UNIMPLEMENTED;
+        goto end;
+    }
 
     ui32Err = hm01b0_get_mode(psCfg, &ui8Mode);
 
@@ -835,11 +633,11 @@ uint32_t hm01b0_hardware_trigger_streaming(hm01b0_cfg_t *psCfg, bool bTrigger)
 
     if (bTrigger)
     {
-        am_hal_gpio_output_set(psCfg->ui8PinTrig);
+        ui32Err = psCfg->interface->trig(psCfg, true, psCfg->interface->arg);
     }
     else
     {
-        am_hal_gpio_output_clear(psCfg->ui8PinTrig);
+        ui32Err = psCfg->interface->trig(psCfg, false, psCfg->interface->arg);
     }
 
 end:
@@ -859,7 +657,7 @@ end:
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_set_mirror(hm01b0_cfg_t *psCfg, bool bHmirror, bool bVmirror)
+hm01b0_status_e hm01b0_set_mirror(hm01b0_cfg_t *psCfg, bool bHmirror, bool bVmirror)
 {
     uint8_t ui8Data = 0x00;
     uint32_t ui32Err = HM01B0_ERR_OK;
@@ -899,39 +697,35 @@ uint32_t hm01b0_set_mirror(hm01b0_cfg_t *psCfg, bool bHmirror, bool bVmirror)
 //! @return Error code.
 //
 //*****************************************************************************
-uint32_t hm01b0_blocking_read_oneframe(hm01b0_cfg_t *psCfg, uint8_t *pui8Buffer, uint32_t ui32BufferLen)
+hm01b0_status_e hm01b0_blocking_read_oneframe(hm01b0_cfg_t *psCfg, uint8_t *pui8Buffer, uint32_t ui32BufferLen)
 {
     uint32_t    ui32Err         = HM01B0_ERR_OK;
     uint32_t    ui32Idx         = 0x00;
-
-    SERIAL_PORT.printf("[%s] +\n", __func__);
 
     uint32_t    ui32HsyncCnt    = 0x00;
 
     while((ui32HsyncCnt < HM01B0_PIXEL_Y_NUM))
     {
-        while (0x00 == read_hsync());
+        while (0x00 == HM01B0_READ_HSYNC);
 
         // read one row
-        while(read_hsync())
+        while(HM01B0_READ_HSYNC)
         {
-            while(0x00 == read_pclk());
+            while(0x00 == HM01B0_READ_PCLK);
 
-            *(pui8Buffer + ui32Idx++) = read_byte();
+            *(pui8Buffer + ui32Idx++) = HM01B0_READ_BYTE;
 
             if (ui32Idx == ui32BufferLen) {
                 goto end;
             }
 
-            while(read_pclk());
+            while(HM01B0_READ_PCLK);
         }
 
         ui32HsyncCnt++;
     }
 
 end:
-    SERIAL_PORT.printf("[%s] - Byte Counts %d\n", __func__, ui32Idx);
-
     return ui32Err;
 
 }
