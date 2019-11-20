@@ -22,7 +22,7 @@
 // Begin User Setup
 
 #define SERIAL_PORT Serial
-#define BAUD_RATE   115200  // This is the baud rate used to negotiate full-speed with the Python script
+#define BAUD_RATE   115200
 
 //#define DEMO_HM01B0_TEST_MODE_ENABLE          // Uncomment to enable test pattern generation
 //#define DEMO_HM01B0_FRAMEBUFFER_DUMP_ENABLE   // Uncomment to enable frame output
@@ -43,8 +43,6 @@ HM01B0 myCamera;            // Declare an HM01B0 object called 'myCamera'
 #ifdef DEMO_HM01B0_PYTHON         
 #define DEMO_HM01B0_FRAMEBUFFER_DUMP_ENABLE
 #undef  DEMO_HM01B0_TEST_MODE_ENABLE
-#undef  BAUD_RATE
-#define BAUD_RATE 115200
 #endif // DEMO_HM01B0_PYTHON
 
 // Forward declarations
@@ -52,15 +50,12 @@ void printWord(uint32_t num);
 void printByte(uint8_t num);
 
 void setup() {
-  // put your setup code here, to run once:
 
   // Start up serial monitor
   SERIAL_PORT.begin(BAUD_RATE);
   do {
     delay(500);
   }while(!SERIAL_PORT);
-
-  // Todo: python baud rate negotiation
 
   // Turn on camera regulator if using Edge board
 #if defined (ARDUINO_SFE_EDGE)
@@ -136,13 +131,13 @@ void loop() {
 // Thanks to bootsector on the Arduino forums:
 // https://forum.arduino.cc/index.php?topic=38107.msg282336#msg282336
 void printWord(uint32_t num) {
-  char tmp[9];          // 8 hex digits + null terminator
+  char tmp[9];                  // 8 hex digits + null terminator
   sprintf(tmp, "%08X", num); 
   SERIAL_PORT.print(tmp);
 }
 
 void printByte(uint8_t num) {
-  char tmp[3];          // 2 hex digits + null terminator
+  char tmp[3];                  // 2 hex digits + null terminator
   sprintf(tmp, "%02X", num); 
   SERIAL_PORT.print(tmp);
 }
