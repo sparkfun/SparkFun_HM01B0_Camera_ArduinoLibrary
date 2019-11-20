@@ -138,7 +138,7 @@ def sync(ser):
     synced = False
     restore_timeout = ser.timeout
     ser.timeout = 0.25
-
+    count = 0
     while(not synced):
         result = ser.read_until(b'\x55')
         if(result != b''):
@@ -146,7 +146,8 @@ def sync(ser):
             if(result[len(result)-1] == 85):
                 synced = True
         else:
-            print('.')
+            print(count)
+            count += 1
 
     ser.timeout = restore_timeout
         
@@ -245,9 +246,10 @@ def main():
 
     parser.add_argument('-o', '--output', 
                         dest        = 'outputfilepath',
-                        required    = True,
+                        required    = False,
                         help        = 'output file path',
                         metavar     = 'FILEPATH',
+                        default     = '.',
                         type        = str
                         )
 

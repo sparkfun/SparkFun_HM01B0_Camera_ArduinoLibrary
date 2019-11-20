@@ -27,6 +27,7 @@
 //#define DEMO_HM01B0_TEST_MODE_ENABLE          // Uncomment to enable test pattern generation
 //#define DEMO_HM01B0_FRAMEBUFFER_DUMP_ENABLE   // Uncomment to enable frame output
 #define DEMO_HM01B0_PYTHON                    // Uncomment to use Python script to visualize data
+                                                // (go to the sketch directory and use 'python3 utils/Example1_StopMotion.py -p {COM_PORT}'
 
 // End User Setup
 /////////////////
