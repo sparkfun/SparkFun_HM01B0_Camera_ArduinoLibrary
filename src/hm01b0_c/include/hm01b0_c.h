@@ -67,6 +67,8 @@ extern "C"
 #define HM01B0_REG_GRP_PARAM_HOLD_CONSUME               (0x00)
 #define HM01B0_REG_GRP_PARAM_HOLD_HOLD                  (0x01)
 
+#define HM01B0_MODEL_ID                                 (0x01B0)
+
 // forward declarations
 typedef struct _hm01b0_cfg_t hm01b0_cfg_t;
 
@@ -96,7 +98,7 @@ typedef struct {
   hm01b0_if_on_off_fn_t trig;     // enable/disabe the trigger pin
   hm01b0_if_fn_t        deinit;   // any deinitialization code needed
   void*                 arg;      // argument for the user available in interface functions
-} hm01b0_if_t;  // abstracts the interface for the HM01B0 - 
+} hm01b0_if_t;  // abstracts the interface for the HM01B0
 
 typedef struct
 {

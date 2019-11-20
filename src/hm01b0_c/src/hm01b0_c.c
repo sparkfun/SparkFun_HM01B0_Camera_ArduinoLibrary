@@ -14,9 +14,10 @@
 
 // Conditionally Include Platforms
 #if defined (AM_PART_APOLLO3)
-#include "platforms/include/hm01b0_platform_apollo3.h"
+#include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
 #else
   #error "Unsupported platform: Submit an issue / pull request to https://github.com/sparkfun/SparkFun_HM01B0_Camera_ArduinoLibrary to add support for your target"
+  // todo: add generic Arduino implementation
 #endif // platform inclusion
 
 

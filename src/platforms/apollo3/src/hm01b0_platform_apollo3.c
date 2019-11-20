@@ -22,7 +22,7 @@ SOFTWARE.
 
 #if defined (AM_PART_APOLLO3)
 
-#include "platforms/include/hm01b0_platform_apollo3.h"
+#include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
 
 #define MCLK_UI64PATTERN        0x55555555
 #define MCLK_UI64PATTERNLEN     31

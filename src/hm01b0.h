@@ -26,24 +26,33 @@ SOFTWARE.
 #include "Arduino.h"
 #include "hm01b0_c/include/hm01b0_c.h"
 
+// #define 
+
 extern hm01b0_cfg_t hm01b0_cfg; // This must be provided by the platform
 
 class HM01B0 {
 private:
 
 public:
-// protected:
+protected:
   hm01b0_cfg_t    cfg = {0};
-  hm01b0_ae_cfg_t aecfg = {0};
-  uint8_t         frameBuffer[HM01B0_PIXEL_X_NUM * HM01B0_PIXEL_Y_NUM] = {0};
-
+  
 public:
+  hm01b0_status_e       status = HM01B0_ERR_OK;
+  hm01b0_status_e       aeConvergenceStatus = HM01B0_ERR_OK;
+  static const size_t   frameBufferSize = (HM01B0_PIXEL_X_NUM * HM01B0_PIXEL_Y_NUM);
+  uint8_t               frameBuffer[frameBufferSize] = {0};
+  hm01b0_ae_cfg_t aecfg = {0};
+
   HM01B0(hm01b0_cfg_t _cfg = hm01b0_cfg);
 
   hm01b0_status_e begin( void );
-  hm01b0_status_e end( void );
+  hm01b0_status_e calibrateAutoExposure( void );
+  hm01b0_status_e enableTestMode( void );
+  uint32_t        countTestMismatches( void );
   hm01b0_status_e capture( void );
-
+  void            getAutoExposureStatus( void );
+  hm01b0_status_e end( void );
 };
 
 
