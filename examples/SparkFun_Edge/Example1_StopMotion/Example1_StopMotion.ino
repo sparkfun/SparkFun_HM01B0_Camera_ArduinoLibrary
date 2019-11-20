@@ -22,7 +22,7 @@
 // Begin User Setup
 
 #define SERIAL_PORT Serial
-#define BAUD_RATE   115200
+#define BAUD_RATE   460800
 
 //#define DEMO_HM01B0_TEST_MODE_ENABLE          // Uncomment to enable test pattern generation
 //#define DEMO_HM01B0_FRAMEBUFFER_DUMP_ENABLE   // Uncomment to enable frame output
@@ -98,12 +98,19 @@ void setup() {
   printWord(mismatches);
   SERIAL_PORT.print("\n");
 #endif
+
+  SERIAL_PORT.write(0x55);                                                    // Special character to sync Python script
+  SERIAL_PORT.print("\n\n");                                                  // Newlines allow Python script to find frame start
 }
 
 void loop() {
   // Take an image
   myCamera.capture();
 
+#ifdef DEMO_HM01B0_FRAMEBUFFER_DUMP_ENABLE
+  // Print out a frame for the Python script to pick up
+  framebuffer_dump();
+#else
   // Print auto exposure state
   SERIAL_PORT.print("AE convergance(0x");
   printByte(myCamera.aeConvergenceStatus);
@@ -114,11 +121,8 @@ void loop() {
   SERIAL_PORT.print(", AEMean 0x");
   printByte(myCamera.aecfg.ui8AEMean);
   SERIAL_PORT.print("\n");
-
-#ifdef DEMO_HM01B0_FRAMEBUFFER_DUMP_ENABLE
-  // Print out a frame for the Python script to pick up
-  framebuffer_dump();
 #endif
+
 
 //  // Wait a second
 //  delay(1000);
