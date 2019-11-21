@@ -20,13 +20,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#if defined (AM_PART_APOLLO3) &&\
-    defined (ARDUINO_SFE_EDGE)
+#ifndef _HM01B0_PLATFORM_ARDUINO_GENERIC_C_H_
+#define _HM01B0_PLATFORM_ARDUINO_GENERIC_C_H_
 
-#include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+#include "stdint.h"
+#include "hm01b0_c/include/hm01b0_c.h"
 
+#define HM01B0_READ_VSYNC     (0)
+#define HM01B0_READ_HSYNC     (0)
+#define HM01B0_READ_PCLK      (0)
+#define HM01B0_READ_BYTE      (0)
 
+#ifdef __cplusplus
+}
+#endif
 
-
-#endif // platform exclusion
+#endif // _HM01B0_PLATFORM_ARDUINO_GENERIC_C_H_

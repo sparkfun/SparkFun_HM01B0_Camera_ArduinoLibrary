@@ -20,7 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#if defined (AM_PART_APOLLO3)
+#if defined (AM_PART_APOLLO3) &&\
+    defined (ARDUINO_SFE_EDGE)
 
 #include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
 
@@ -376,4 +377,4 @@ hm01b0_status_e burst_mode_enable(bool bEnable){
 }
 
 
-#endif // defined (AM_PART_APOLLO3)
+#endif // platform exclusion

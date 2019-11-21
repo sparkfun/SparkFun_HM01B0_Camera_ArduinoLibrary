@@ -1,0 +1,28 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+HM01B0	KEYWORD2
+begin	KEYWORD2
+calibrateAutoExposure	KEYWORD2
+enableTestMode	KEYWORD2
+countTestMismatches	KEYWORD2
+capture	KEYWORD2
+getAutoExposureStatus	KEYWORD2
+end	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+_HM01B0_H_	LITERAL1
+extern	LITERAL1
