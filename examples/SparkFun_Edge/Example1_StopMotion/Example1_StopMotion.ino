@@ -9,10 +9,13 @@
   Buy a board from SparkFun! https://www.sparkfun.com/products/15170
 
   This example shows how to use the HM01B0 camera. It will stream frames captured by the 
-  camera over the UART. (You can choose the port and baud rate - Serial and 921600 by default)
+  camera over the UART.
 
-  Record the stream of data (capture as many frames as you like) and then use the 'raw2bmp.py'
-  tool to convert the stream to a set of still images
+  To see images:
+  1. upload this sketch (using baud 460800 is recommended)
+  2. navigate to the library folder (~/.../Arduino/libraries/SparkFun_Himax_HM01B0_Camera)
+  3. run the command 'python3 utils/Example1_StopMotion.py -p COM_PORT (COM_PORT is the same as the port used for upload in Arduino)
+  4. say "cheese"
 */
 
 #include "hm01b0.h"
