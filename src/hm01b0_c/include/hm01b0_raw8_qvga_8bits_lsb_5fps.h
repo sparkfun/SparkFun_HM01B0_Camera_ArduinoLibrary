@@ -1,5 +1,5 @@
 
-#include "HM01B0.h"
+#include "hm01b0.h"
 
 const hm_script_t sHM01B0InitScript[] =
 {
