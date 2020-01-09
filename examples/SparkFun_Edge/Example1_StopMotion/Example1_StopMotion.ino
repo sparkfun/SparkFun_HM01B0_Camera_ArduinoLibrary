@@ -18,7 +18,7 @@
   4. say "cheese"
 */
 
-#include "hm01b0.h"
+#include "hm01b0_arduino.h"
 #include "String.h"
 
 ///////////////////

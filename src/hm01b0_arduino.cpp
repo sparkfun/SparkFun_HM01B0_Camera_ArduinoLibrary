@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "hm01b0.h"
+#include "hm01b0_arduino.h"
 #include "hm01b0_c/include/hm01b0_raw8_qvga_8bits_lsb_5fps.h"
 
 
