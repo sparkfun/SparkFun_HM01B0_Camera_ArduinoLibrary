@@ -31,7 +31,7 @@ extern "C" {
 #include "am_bsp.h"
 #include "am_util.h"
 
-#include "hm01b0_c/include/hm01b0_c.h"
+#include "hm01b0.h"
 
 // Mapping BSP -> HM01B0 
 #define HM01B0_PIN_D0                   AM_BSP_GPIO_CAMERA_HM01B0_D0

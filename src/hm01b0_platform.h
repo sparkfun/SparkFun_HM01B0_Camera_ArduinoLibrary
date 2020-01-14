@@ -20,41 +20,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _HM01B0_ARDUINO_H_
-#define _HM01B0_ARDUINO_H_
+#ifndef _HM01B0_PLATFORM_H_
 
-#include "Arduino.h"
-#include "hm01b0.h"
+// Conditionally Include Platforms
+#if defined (AM_PART_APOLLO3) && \
+    defined (ARDUINO_SFE_EDGE)
+  #include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
+#else
+  #warning "No platform implementation - falling back to generic Arduino interface. Performance not guaranteed."
+  #include "platforms/arduino_generic/include/hm01b0_platform_arduino_generic.h"  
+#endif // platform inclusion
 
-// #define 
+#ifndef HM01B0_READ_HSYNC
+  #warning HM01B0_READ_HSYNC undefined!
+  #define HM01B0_READ_HSYNC 0
+#endif
 
-extern hm01b0_cfg_t hm01b0_cfg; // This must be provided by the platform
+#ifndef HM01B0_READ_PCLK
+  #warning HM01B0_READ_PCLK undefined!
+  #define HM01B0_READ_PCLK 0
+#endif
 
-class HM01B0 {
-private:
+#ifndef HM01B0_READ_BYTE
+  #warning HM01B0_READ_BYTE undefined!
+  #define HM01B0_READ_BYTE 0
+#endif
 
-public:
-protected:
-  hm01b0_cfg_t    cfg = {0};
-  
-public:
-  hm01b0_status_e       status = HM01B0_ERR_OK;
-  hm01b0_status_e       aeConvergenceStatus = HM01B0_ERR_OK;
-  static const size_t   frameBufferSize = ((size_t)HM01B0_PIXEL_X_NUM * (size_t)HM01B0_PIXEL_Y_NUM);
-  uint8_t               frameBuffer[frameBufferSize] = {0};
-  hm01b0_ae_cfg_t       aecfg;
-
-  HM01B0(hm01b0_cfg_t _cfg = hm01b0_cfg);
-
-  hm01b0_status_e begin( void );
-  hm01b0_status_e calibrateAutoExposure( void );
-  hm01b0_status_e enableTestMode( void );
-  uint32_t        countTestMismatches( void );
-  hm01b0_status_e capture( void );
-  void            getAutoExposureStatus( void );
-  hm01b0_status_e end( void );
-};
-
-
-
-#endif // _HM01B0_ARDUINO_H_
+#endif // _HM01B0_PLATFORM_H_

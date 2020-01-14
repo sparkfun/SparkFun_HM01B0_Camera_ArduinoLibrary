@@ -21,7 +21,7 @@ SOFTWARE.
 */
 
 #include "hm01b0_arduino.h"
-#include "hm01b0_c/include/hm01b0_raw8_qvga_8bits_lsb_5fps.h"
+#include "hm01b0_raw8_qvga_8bits_lsb_5fps.h"
 
 
 
@@ -29,6 +29,7 @@ void framebuffer_dump(uint8_t *pui8Buffer, uint32_t ui32BufferLen);
 
 HM01B0::HM01B0(hm01b0_cfg_t _cfg){
   cfg = _cfg;
+  memset((void*)&aecfg, 0x00, sizeof(hm01b0_ae_cfg_t));
 }
 
 hm01b0_status_e HM01B0::begin( void ){
@@ -74,7 +75,6 @@ uint32_t HM01B0::countTestMismatches( void ){
 hm01b0_status_e HM01B0::capture( void ){
   hm01b0_status_e retval = HM01B0_ERR_OK;
   uint8_t     ui8Mode     = 0xFF;
-  uint32_t    ui32Err     = HM01B0_ERR_OK;
 
   getAutoExposureStatus();
   hm01b0_get_mode(&cfg, &ui8Mode);

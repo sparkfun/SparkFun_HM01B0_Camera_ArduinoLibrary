@@ -7,21 +7,9 @@
 //
 //*****************************************************************************
 
-#include "hm01b0_c/include/hm01b0_c.h"
-#include "hm01b0_c/include/hm01b0_walking1s_01.h"
-// #include "hm01b0_platform.h"
-
-
-// Conditionally Include Platforms
-#if defined (AM_PART_APOLLO3) &&\
-    defined (ARDUINO_SFE_EDGE)
-#include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
-#else
-#error "Unsupported platform: Submit an issue / pull request to https://github.com/sparkfun/SparkFun_HM01B0_Camera_ArduinoLibrary to add support for your target"
-#include "platforms/arduino_generic/include/hm01b0_platform_arduino_generic_c.h"  
-  // todo: add generic Arduino implementation
-#endif // platform inclusion
-
+#include "hm01b0.h"
+#include "hm01b0_walking1s_01.h"
+#include "hm01b0_platform.h"
 
 //*****************************************************************************
 //
@@ -96,41 +84,43 @@ hm01b0_status_e hm01b0_load_script(hm01b0_cfg_t *psCfg, hm_script_t *psScript, u
   return ui32Err;   
 }
 
-// //*****************************************************************************
-// //
-// //! @brief Power up HM01B0
-// //!
-// //! @param psCfg                - Pointer to HM01B0 configuration structure.
-// //!
-// //! This function powers up HM01B0.
-// //!
-// //! @return Error code.
-// //
-// //*****************************************************************************
-// hm01b0_status_e hm01b0_power_up(hm01b0_cfg_t *psCfg)
-// {
-//   hm01b0_status_e retval = HM01B0_ERR_OK;
-//   // place holder
-//   return retval;
-// }
+//*****************************************************************************
+//
+//! @brief Power up HM01B0
+//!
+//! @param psCfg                - Pointer to HM01B0 configuration structure.
+//!
+//! This function powers up HM01B0.
+//!
+//! @return Error code.
+//
+//*****************************************************************************
+hm01b0_status_e hm01b0_power_up(hm01b0_cfg_t *psCfg)
+{
+  hm01b0_status_e retval = HM01B0_ERR_OK;
+  // place holder
+  (void)(psCfg);
+  return retval;
+}
 
-// //*****************************************************************************
-// //
-// //! @brief Power down HM01B0
-// //!
-// //! @param psCfg                - Pointer to HM01B0 configuration structure.
-// //!
-// //! This function powers up HM01B0.
-// //!
-// //! @return none.
-// //
-// //*****************************************************************************
-// hm01b0_status_e hm01b0_power_down(hm01b0_cfg_t *psCfg)
-// {
-//   hm01b0_status_e retval = HM01B0_ERR_OK;
-//   // place holder
-//   return retval;
-// }
+//*****************************************************************************
+//
+//! @brief Power down HM01B0
+//!
+//! @param psCfg                - Pointer to HM01B0 configuration structure.
+//!
+//! This function powers up HM01B0.
+//!
+//! @return none.
+//
+//*****************************************************************************
+hm01b0_status_e hm01b0_power_down(hm01b0_cfg_t *psCfg)
+{
+  hm01b0_status_e retval = HM01B0_ERR_OK;
+  // place holder
+  (void)(psCfg);
+  return retval;
+}
 
 //*****************************************************************************
 //
@@ -702,6 +692,7 @@ hm01b0_status_e hm01b0_set_mirror(hm01b0_cfg_t *psCfg, bool bHmirror, bool bVmir
 //*****************************************************************************
 hm01b0_status_e hm01b0_blocking_read_oneframe(hm01b0_cfg_t *psCfg, uint8_t *pui8Buffer, uint32_t ui32BufferLen)
 {
+    (void)(psCfg);
     uint32_t    ui32Err         = HM01B0_ERR_OK;
     uint32_t    ui32Idx         = 0x00;
 

@@ -2,7 +2,7 @@
 #ifndef _HM01B0_WALKING_1S_01_H_
 #define _HM01B0_WALKING_1S_01_H_
 
-#include "hm01b0_c.h"
+#include "hm01b0.h"
 
 const hm_script_t sHM01b0TestModeScript_Walking1s[] =
 {

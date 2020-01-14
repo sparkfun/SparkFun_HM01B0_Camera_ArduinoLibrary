@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #include "stdint.h"
-#include "hm01b0_c/include/hm01b0_c.h"
+#include "hm01b0.h"
 
 #define HM01B0_READ_VSYNC     (0)
 #define HM01B0_READ_HSYNC     (0)

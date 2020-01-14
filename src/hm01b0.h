@@ -176,31 +176,31 @@ hm01b0_status_e hm01b0_read_reg(hm01b0_cfg_t *psCfg, uint16_t ui16Reg, uint8_t *
 //*****************************************************************************
 hm01b0_status_e hm01b0_load_script(hm01b0_cfg_t *psCfg, hm_script_t *psScript, uint32_t ui32ScriptCmdNum);
 
-// //*****************************************************************************
-// //
-// //! @brief Power up HM01B0
-// //!
-// //! @param psCfg                - Pointer to HM01B0 configuration structure.
-// //!
-// //! This function powers up HM01B0.
-// //!
-// //! @return Error code.
-// //
-// //*****************************************************************************
-// hm01b0_status_e hm01b0_power_up(hm01b0_cfg_t *psCfg);
+//*****************************************************************************
+//
+//! @brief Power up HM01B0
+//!
+//! @param psCfg                - Pointer to HM01B0 configuration structure.
+//!
+//! This function powers up HM01B0.
+//!
+//! @return Error code.
+//
+//*****************************************************************************
+hm01b0_status_e hm01b0_power_up(hm01b0_cfg_t *psCfg);
 
-// //*****************************************************************************
-// //
-// //! @brief Power down HM01B0
-// //!
-// //! @param psCfg                - Pointer to HM01B0 configuration structure.
-// //!
-// //! This function powers up HM01B0.
-// //!
-// //! @return Error code.
-// //
-// //*****************************************************************************
-// hm01b0_status_e hm01b0_power_down(hm01b0_cfg_t *psCfg);
+//*****************************************************************************
+//
+//! @brief Power down HM01B0
+//!
+//! @param psCfg                - Pointer to HM01B0 configuration structure.
+//!
+//! This function powers up HM01B0.
+//!
+//! @return Error code.
+//
+//*****************************************************************************
+hm01b0_status_e hm01b0_power_down(hm01b0_cfg_t *psCfg);
 
 //*****************************************************************************
 //
