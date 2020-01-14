@@ -30,10 +30,13 @@ extern "C" {
 #include "stdint.h"
 #include "hm01b0.h"
 
+// todo: implement real macros for generic Arduino imlementation
 #define HM01B0_READ_VSYNC     (0)
 #define HM01B0_READ_HSYNC     (0)
 #define HM01B0_READ_PCLK      (0)
 #define HM01B0_READ_BYTE      (0)
+
+// todo: implement an interface using generic Arduino functions
 
 #ifdef __cplusplus
 }

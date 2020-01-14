@@ -106,7 +106,7 @@ typedef struct _hm01b0_platform_apollo3_arg_t {
 } hm01b0_platform_apollo3_arg_t;
 extern hm01b0_platform_apollo3_arg_t   hm01b0_platform_apollo3_args;
 
-// Apollo3 HM01B0 Configuration (provided to hm01b0.h)
+// Apollo3 HM01B0 Configuration (provided to hm01b0_arduino.h)
 extern hm01b0_cfg_t hm01b0_cfg;
 
 // Interface Function Declarations
