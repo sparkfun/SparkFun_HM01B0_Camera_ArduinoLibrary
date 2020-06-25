@@ -34,6 +34,8 @@ extern "C"
 
 #include "hm01b0.h"
 
+#if defined(ARDUINO_SFE_EDGE)
+
 // Mapping BSP -> HM01B0
 #define HM01B0_PIN_D0 AM_BSP_GPIO_CAMERA_HM01B0_D0
 #define HM01B0_PIN_D1 AM_BSP_GPIO_CAMERA_HM01B0_D1
@@ -63,10 +65,58 @@ extern "C"
 #define HM01B0_MCLK_GENERATOR_SEG AM_BSP_CAMERA_HM01B0_MCLK_GEN_SEG
 #define HM01B0_PIN_MCLK AM_BSP_CAMERA_HM01B0_MCLK_PIN
 
-// Deifne I2C controller and SCL(pin8)/SDA(pin9) are configured automatically.
+// Define I2C controller and SCL(pin8)/SDA(pin9) are configured automatically.
 #define HM01B0_IOM_MODE AM_HAL_IOM_I2C_MODE
 #define HM01B0_IOM_MODULE AM_BSP_CAMERA_HM01B0_I2C_IOM
 #define HM01B0_I2C_CLOCK_FREQ AM_HAL_IOM_100KHZ
+
+#elif defined(ARDUINO_AM_AP3_SFE_BB_ARTEMIS_MICROMOD)
+
+//These will be in the MM variant
+#define G0 16
+#define G1 33
+#define G2 34
+#define G3 27
+#define G4 28
+#define G5 29
+#define G6 14
+#define G7 15
+#define CAM_MCLK 0
+#define CAM_PCLK 11
+#define CAM_HSYNC 12
+#define CAM_VSYNC 13
+#define I2C_INT 18
+#define D1 2
+
+//Define the connections between camera and MM
+#define HM01B0_PIN_D0 G0
+#define HM01B0_PIN_D1 G1
+#define HM01B0_PIN_D2 G2
+#define HM01B0_PIN_D3 G3
+#define HM01B0_PIN_D4 G4
+#define HM01B0_PIN_D5 G5
+#define HM01B0_PIN_D6 G6
+#define HM01B0_PIN_D7 G7
+#define HM01B0_PIN_VSYNC CAM_VSYNC
+#define HM01B0_PIN_HSYNC CAM_HSYNC
+#define HM01B0_PIN_PCLK CAM_PCLK
+#define HM01B0_PIN_SCL 39
+#define HM01B0_PIN_SDA 40
+
+#define HM01B0_PIN_TRIG D1
+#define HM01B0_PIN_INT I2C_INT
+
+// Define AP3B's CTIMER and output pin for HM01B0 MCLK generation
+#define HM01B0_MCLK_GENERATOR_MOD 0
+#define HM01B0_MCLK_GENERATOR_SEG AM_HAL_CTIMER_TIMERB
+#define HM01B0_PIN_MCLK CAM_MCLK
+
+// Define I2C controller and SCL(pin39)/SDA(pin40) are configured automatically.
+#define HM01B0_IOM_MODE AM_HAL_IOM_I2C_MODE
+#define HM01B0_IOM_MODULE 4
+#define HM01B0_I2C_CLOCK_FREQ 100000
+
+#endif
 
 // Fast-access macros
 #define HM01B0_READ_VSYNC (AM_REGVAL(AM_REGADDR(GPIO, RDA)) & (1 << HM01B0_PIN_VSYNC))
