@@ -23,27 +23,29 @@ SOFTWARE.
 #ifndef _HM01B0_PLATFORM_H_
 
 // Conditionally Include Platforms
-#if defined (AM_PART_APOLLO3) && \
-    defined (ARDUINO_SFE_EDGE)
-  #include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
+#if defined(AM_PART_APOLLO3) &&   \
+    (defined(ARDUINO_SFE_EDGE) || \
+     defined(ARDUINO_AM_AP3_SFE_BB_ARTEMIS_MICROMOD))
+#include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
 #else
-  #warning "No platform implementation - falling back to generic Arduino interface. Performance not guaranteed."
-  #include "platforms/arduino_generic/include/hm01b0_platform_arduino_generic.h"  
+//  #warning "No platform implementation - falling back to generic Arduino interface. Performance not guaranteed."
+//#include "platforms/arduino_generic/include/hm01b0_platform_arduino_generic.h"
+#include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
 #endif // platform inclusion
 
 #ifndef HM01B0_READ_HSYNC
-  #warning HM01B0_READ_HSYNC undefined!
-  #define HM01B0_READ_HSYNC 0
+#warning HM01B0_READ_HSYNC undefined!
+#define HM01B0_READ_HSYNC 0
 #endif
 
 #ifndef HM01B0_READ_PCLK
-  #warning HM01B0_READ_PCLK undefined!
-  #define HM01B0_READ_PCLK 0
+#warning HM01B0_READ_PCLK undefined!
+#define HM01B0_READ_PCLK 0
 #endif
 
 #ifndef HM01B0_READ_BYTE
-  #warning HM01B0_READ_BYTE undefined!
-  #define HM01B0_READ_BYTE 0
+#warning HM01B0_READ_BYTE undefined!
+#define HM01B0_READ_BYTE 0
 #endif
 
 #endif // _HM01B0_PLATFORM_H_
