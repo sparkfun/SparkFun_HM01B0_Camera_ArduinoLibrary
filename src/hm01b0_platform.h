@@ -25,7 +25,7 @@ SOFTWARE.
 // Conditionally Include Platforms
 #if defined(AM_PART_APOLLO3) &&   \
     (defined(ARDUINO_SFE_EDGE) || \
-     defined(ARDUINO_AM_AP3_SFE_BB_ARTEMIS_MICROMOD))
+     defined(ARDUINO_AM_AP3_SFE_ARTEMIS_MICROMOD))
 #include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
 #else
 //  #warning "No platform implementation - falling back to generic Arduino interface. Performance not guaranteed."
