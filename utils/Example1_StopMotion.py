@@ -9,7 +9,7 @@ import argparse
 import os.path
 from array import *
 
-from PIL import Image
+from PIL import Image #pip install pillow
 import numpy as np
 import re
 
