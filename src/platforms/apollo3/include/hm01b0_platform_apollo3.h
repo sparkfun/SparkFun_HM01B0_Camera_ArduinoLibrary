@@ -70,7 +70,7 @@ extern "C"
 #define HM01B0_IOM_MODULE AM_BSP_CAMERA_HM01B0_I2C_IOM
 #define HM01B0_I2C_CLOCK_FREQ AM_HAL_IOM_100KHZ
 
-#elif defined(ARDUINO_AM_AP3_SFE_BB_ARTEMIS_MICROMOD)
+#elif defined(ARDUINO_AM_AP3_SFE_ARTEMIS_MICROMOD)
 
 //These will be in the MM variant
 #define G0 16
@@ -81,7 +81,8 @@ extern "C"
 #define G5 29
 #define G6 14
 #define G7 15
-#define CAM_MCLK 0
+#define CAM_MCLK 5 //For testing: SCK on ML board
+//#define CAM_MCLK 18 //On PB rev v15
 #define CAM_PCLK 11
 #define CAM_HSYNC 12
 #define CAM_VSYNC 13
@@ -107,9 +108,16 @@ extern "C"
 #define HM01B0_PIN_INT I2C_INT
 
 // Define AP3B's CTIMER and output pin for HM01B0 MCLK generation
-#define HM01B0_MCLK_GENERATOR_MOD 0
-#define HM01B0_MCLK_GENERATOR_SEG AM_HAL_CTIMER_TIMERB
-#define HM01B0_PIN_MCLK CAM_MCLK
+
+//Testing SCK pin on ML board
+#define HM01B0_MCLK_GENERATOR_MOD 2
+#define HM01B0_MCLK_GENERATOR_SEG AM_HAL_CTIMER_TIMERA
+#define HM01B0_PIN_MCLK CAM_MCLK //5 = A2OUT from datasheet
+
+//Pin 18 on rev v15
+// #define HM01B0_MCLK_GENERATOR_MOD 1
+// #define HM01B0_MCLK_GENERATOR_SEG AM_HAL_CTIMER_TIMERA
+// #define HM01B0_PIN_MCLK CAM_MCLK //18 = A1OUT from datasheet
 
 // Define I2C controller and SCL(pin39)/SDA(pin40) are configured automatically.
 #define HM01B0_IOM_MODE AM_HAL_IOM_I2C_MODE
