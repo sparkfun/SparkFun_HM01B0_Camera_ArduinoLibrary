@@ -81,13 +81,13 @@ extern "C"
     #define G5 29
     #define G6 14
     #define G7 15
-    #define CAM_MCLK 5 //For testing: SCK on ML board
-    //#define CAM_MCLK 18 //On PB rev v15
+    //#define CAM_MCLK 5 //For testing: SCK on ML board
+    #define CAM_MCLK 18 //On PB rev v15
     #define CAM_PCLK 11
     #define CAM_HSYNC 12
     #define CAM_VSYNC 13
-    #define I2C_INT 18
-    #define D1 2
+    #define I2C_INT 2
+    #define D1 1
 
     //Define the connections between camera and MM
     #define HM01B0_PIN_D0 G0
@@ -110,16 +110,16 @@ extern "C"
     // Define AP3B's CTIMER and output pin for HM01B0 MCLK generation
 
     //Testing SCK pin on ML board
-    #define HM01B0_MCLK_GENERATOR_MOD 2
-    #define HM01B0_MCLK_GENERATOR_SEG AM_HAL_CTIMER_TIMERA
-    #define HM01B0_PIN_MCLK CAM_MCLK //5 = A2OUT from datasheet
+    //#define HM01B0_MCLK_GENERATOR_MOD 2
+    //#define HM01B0_MCLK_GENERATOR_SEG AM_HAL_CTIMER_TIMERA
+    //#define HM01B0_PIN_MCLK CAM_MCLK //5 = A2OUT from datasheet
 
     //Pin 18 on rev v15
-    // #define HM01B0_MCLK_GENERATOR_MOD 1
-    // #define HM01B0_MCLK_GENERATOR_SEG AM_HAL_CTIMER_TIMERA
-    // #define HM01B0_PIN_MCLK CAM_MCLK //18 = A1OUT from datasheet
+    #define HM01B0_MCLK_GENERATOR_MOD 1
+    #define HM01B0_MCLK_GENERATOR_SEG AM_HAL_CTIMER_TIMERA
+    #define HM01B0_PIN_MCLK CAM_MCLK //18 = A1OUT from datasheet
 
-    // Define I2C controller and SCL(pin39)/SDA(pin40) are configured automatically.
+   // Define I2C controller and SCL(pin39)/SDA(pin40) are configured automatically.
     #define HM01B0_IOM_MODE AM_HAL_IOM_I2C_MODE
     #define HM01B0_IOM_MODULE 4
     #define HM01B0_I2C_CLOCK_FREQ 100000
