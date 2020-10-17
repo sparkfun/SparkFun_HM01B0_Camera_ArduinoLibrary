@@ -62,10 +62,10 @@ void setup() {
   }while(!SERIAL_PORT);
 
   // Turn on camera regulator if using Edge board
-#if defined (ARDUINO_SFE_EDGE)
+#if defined (AM_BSP_GPIO_CAMERA_HM01B0_DVDDEN)
   pinMode(AM_BSP_GPIO_CAMERA_HM01B0_DVDDEN, OUTPUT);
   digitalWrite(AM_BSP_GPIO_CAMERA_HM01B0_DVDDEN, HIGH);
-  SERIAL_PORT.println("Turned on Edge camera regulator");
+  SERIAL_PORT.println("Turned on camera regulator");
 #endif
 
   // Start the camera

@@ -20,8 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#if defined (AM_PART_APOLLO3) &&\
-    defined (ARDUINO_SFE_EDGE)
+#if defined (ARDUINO_ARCH_APOLLO3)
 
 #include "platforms/apollo3/include/hm01b0_platform_apollo3.h"
 
@@ -348,27 +347,33 @@ hm01b0_status_e burst_mode_enable(bool bEnable){
     return HM01B0_ERR;
   }
 
-  // Make sure we are in "Normal" mode.
-  if (AM_HAL_STATUS_SUCCESS == am_hal_burst_mode_disable(&eBurstMode)){
-    if (AM_HAL_NORMAL_MODE == eBurstMode){
-        // am_util_stdio_printf("Apollo3 operating in Normal Mode (48MHz)\n");
-    }
-  }
-  else{
-    // am_util_stdio_printf("Failed to Disable Burst Mode operation\n");
-    return HM01B0_ERR;
-  }
-
   // Put the MCU into "Burst" mode.
   if (bEnable)
   {
     if (AM_HAL_STATUS_SUCCESS == am_hal_burst_mode_enable(&eBurstMode)){
       if (AM_HAL_BURST_MODE == eBurstMode){
         // am_util_stdio_printf("Apollo3 operating in Burst Mode (96MHz)\n");
+      }else{
+        // am_util_stdio_printf("Failed to Enable Burst Mode operation\n");
+        return HM01B0_ERR;
       }
     }
     else{
       // am_util_stdio_printf("Failed to Enable Burst Mode operation\n");
+      return HM01B0_ERR;
+    }
+  }else{
+    // Make sure we are in "Normal" mode.
+    if (AM_HAL_STATUS_SUCCESS == am_hal_burst_mode_disable(&eBurstMode)){
+      if (AM_HAL_NORMAL_MODE == eBurstMode){
+          // am_util_stdio_printf("Apollo3 operating in Normal Mode (48MHz)\n");
+      }else{
+        // am_util_stdio_printf("Failed to Disable Burst Mode operation\n");
+        return HM01B0_ERR;
+      }
+    }
+    else{
+      // am_util_stdio_printf("Failed to Disable Burst Mode operation\n");
       return HM01B0_ERR;
     }
   }
